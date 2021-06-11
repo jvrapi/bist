@@ -1,0 +1,17 @@
+[
+	{
+		"name": "mercado julho",
+		"items": [
+			{
+				"name": "Café",
+				"amount": 2,
+				"price": 9.99
+			},
+			{
+				"name": "Açúcar",
+				"amount": 1,
+				"price": 5.50
+			}
+		]
+	}
+]

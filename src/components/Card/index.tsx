@@ -1,11 +1,14 @@
 import React from 'react'
-import { StyleSheet, TouchableOpacityProps, View } from 'react-native'
+import { StyleProp, StyleSheet, TouchableOpacityProps, View, ViewStyle } from 'react-native'
 import globalStyles from '../../assets/globalStyles'
 
+interface Props extends TouchableOpacityProps {
+	style?: StyleProp<ViewStyle>;
+}
 
-const Card: React.FC<TouchableOpacityProps> = ({ children, ...props }) => {
+const Card: React.FC<Props> = ({ children, ...props }) => {
 	return (
-		<View style={[styles.container]} {...props}>
+		<View {...props} style={[styles.container, props.style, globalStyles.shadow,]} >
 			{children}
 		</View>
 	)
@@ -15,20 +18,11 @@ export default Card
 
 const styles = StyleSheet.create({
 	container: {
-		backgroundColor: "#fff",
-		height: 100,
-		width: 100,
-		justifyContent: 'center',
-		alignItems: 'center',
-		shadowColor: "#000",
-		shadowOffset: {
-			width: 0,
-			height: 12,
-		},
-		shadowOpacity: 0.58,
-		shadowRadius: 16.00,
-
-		elevation: 24,
+		width: 150,
+		height: 150,
+		backgroundColor: '#ffffff',
+		borderRadius: 5,
 	},
+
 
 })
