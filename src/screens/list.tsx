@@ -1,9 +1,12 @@
 import React from 'react'
-import { SafeAreaView, Text, StyleSheet, ScrollView, View, Touchable, TouchableOpacity } from 'react-native'
-import BuyLists from './data/lists.json';
-import Card from './components/Card';
-import { numberToReal } from './assets/functions';
-import AddListIcon from './assets/icons/add-list.svg'
+import { SafeAreaView, Text, StyleSheet, ScrollView, View, TouchableOpacity } from 'react-native'
+import BuyLists from '../data/lists.json';
+import Card from '../components/Card';
+import { numberToReal } from '../assets/functions';
+import AddListIcon from '../assets/icons/add-list.svg';
+import { useNavigation } from '@react-navigation/native';
+
+
 interface Items {
 	price: number;
 	amount: number;
@@ -11,6 +14,9 @@ interface Items {
 }
 
 const List = () => {
+
+	const navigation = useNavigation();
+
 	const totalList = (items: Items[]) => {
 
 		let total = 0;
@@ -27,7 +33,7 @@ const List = () => {
 				<ScrollView style={styles.scroll}>
 					<View style={styles.scrollContent}>
 						{BuyLists.map((list, i) => (
-							<Card style={styles.card}>
+							<Card style={styles.card} key={i}>
 								<View style={styles.cardContent}>
 									<Text style={[styles.text, styles.strong]}>{list.name}</Text>
 									<Text style={[styles.text, styles.strong]}>
@@ -40,8 +46,8 @@ const List = () => {
 
 				</ScrollView>
 				<View style={styles.buttonContainer}>
-					<TouchableOpacity style={styles.button}>
-						<AddListIcon width='60' height='60' fill="#000000" />
+					<TouchableOpacity style={styles.button} onPress={() => navigation.navigate('NewList')}>
+						<AddListIcon width='40' height='40' fill="#000000" />
 					</TouchableOpacity>
 				</View>
 			</View>
@@ -52,19 +58,20 @@ const List = () => {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		justifyContent: 'center',
+		justifyContent: 'flex-start',
 		alignItems: 'center',
-		backgroundColor: '#f1f1f1'
+		backgroundColor: "#fff"
 	},
 	scrollContainer: {
 		justifyContent: 'center',
 		alignItems: 'center',
 		width: '100%',
-		height: '70%',
+		height: '85%',
 
 	},
 	scroll: {
 		width: '100%',
+		backgroundColor: "#fff"
 	},
 
 	scrollContent: {
@@ -103,8 +110,10 @@ const styles = StyleSheet.create({
 		borderRadius: 70,
 		textAlign: 'center',
 		justifyContent: 'center',
-		bottom: -110,
-		right: 140,
+		bottom: -100,
+		right: 160,
+		height: 80,
+		width: 80,
 	},
 	button: {
 		height: 100,

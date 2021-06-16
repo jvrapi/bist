@@ -1,13 +1,14 @@
+import 'react-native-gesture-handler';
 import React from 'react';
 import { StatusBar } from 'expo-status-bar';
-import List from './src';
-
+import { NavigationContainer } from '@react-navigation/native';
+import Routes from './src/routes';
 export default function App() {
 	return (
-		<>
-			<List />
+		<NavigationContainer>
+			<Routes />
 			<StatusBar style="light" />
-		</>
+		</NavigationContainer>
 
 	);
 }
