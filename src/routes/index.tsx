@@ -8,8 +8,8 @@ const Stack = createStackNavigator();
 const Routes = () => {
 	return (
 		<Stack.Navigator>
-			<Stack.Screen name="List" component={List} options={{ ...styles, title: 'Listas de compras' }} />
 			<Stack.Screen name="NewList" component={NewList} options={{ ...styles, title: 'Nova Lista' }} />
+			<Stack.Screen name="List" component={List} options={{ ...styles, title: 'Listas de compras' }} />
 		</Stack.Navigator>
 	)
 }

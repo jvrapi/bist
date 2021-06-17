@@ -1,21 +1,18 @@
-import React, { useState } from 'react'
-import { StyleSheet, SafeAreaView, View, TextInput, Text, ScrollView, TouchableOpacity } from 'react-native'
+import React, { useContext, useState } from 'react'
+import { ActivityIndicator, StyleSheet, SafeAreaView, View, TextInput, Text, ScrollView, TouchableOpacity } from 'react-native'
 import Loupe from '../assets/icons/loupe.svg';
 import NewProduct from '../assets/icons/add-to-basket.svg';
 import products from '../data/products.json';
 import Card from '../components/Card';
-
+import { AntDesign } from '@expo/vector-icons';
+import ListContext from '../contexts';
+import { useEffect } from 'react';
 interface Product {
 	name: string
 }
 
-interface Item {
-	name: string;
-	amount: number;
-	price: number;
-}
-
-const NewList = () => {
+const NewList: React.FC = () => {
+	const { list, updateList, loading } = useContext(ListContext)
 	const [productsFound, setProductFound] = useState<Product[]>([]);
 	const [showInput, setShowInput] = useState(false);
 	const [optionSelected, setOptionSelected] = useState(0);
@@ -24,20 +21,25 @@ const NewList = () => {
 
 	const findProductStyle = inputStyles(productsFound.length > 0);
 
-
-
 	const findProducts = (productName: string) => {
 		if (productName) {
+			if (optionSelected === 0) {
+				const productsFound = buyList.filter(product => product.name.toLowerCase().includes(productName.toLowerCase()));
+				setBuyList(productsFound);
 
-			const productsFound = products.filter(product => product.name.toLowerCase().includes(productName.toLowerCase()));
-			setProductFound(productsFound);
+			} else {
+				const productsFound = products.filter(product => product.name.toLowerCase().includes(productName.toLowerCase()));
+				setProductFound(productsFound);
+			}
 		} else {
-			setProductFound([])
+			setBuyList(list);
+			setProductFound([]);
 		}
 	}
 
-	const addItemToList = (product: Product) => {
+	const addItemToList = async (product: Product) => {
 		const item = {
+			id: buyList.length + 1,
 			name: product.name,
 			amount: 1,
 			price: 0,
@@ -46,69 +48,87 @@ const NewList = () => {
 		updatedList.push(item);
 		setBuyList(updatedList);
 		setProductFound([]);
+		await updateList(updatedList);
 
 	}
+	useEffect(() => {
+		if (!loading) {
+			setBuyList(list);
+
+		}
+	}, [loading])
 	return (
 		<SafeAreaView style={styles.container}>
-
-			{showInputContainer && <View style={styles.buttonsContainer}>
-				<TouchableOpacity onPress={() => {
-					setShowInput(true);
-					setShowInputContainer(false);
-					setOptionSelected(0);
-
-				}}>
-					<Loupe width='30' height='30' fill='#000000' />
-				</TouchableOpacity>
-
-				<TouchableOpacity onPress={() => {
-					setShowInput(true);
-					setShowInputContainer(false);
-					setOptionSelected(1);
-				}}>
-					<NewProduct width='50' height='50' fill='#000000' />
-				</TouchableOpacity>
-
-			</View>}
-
-			{showInput && <View style={findProductStyle.container}>
-				{
+			{!loading && <>
+				{showInputContainer && <View style={styles.buttonsContainer}>
 					<TouchableOpacity onPress={() => {
-						setShowInputContainer(true);
-						setShowInput(false);
+						setShowInput(true);
+						setShowInputContainer(false);
+						setOptionSelected(0);
+
 					}}>
-						{optionSelected === 1 ? <NewProduct width='40' height='40' fill='#000000' /> : <Loupe width='30' height='30' fill='#000000' />}
+						<Loupe width='30' height='30' fill='#000000' />
 					</TouchableOpacity>
-				}
-				<TextInput placeholder='Insira o nome do produto' style={findProductStyle.input} onChangeText={(text) => findProducts(text)} />
-			</View>}
 
-			<View style={buyListStyles.container}>
-				<ScrollView style={buyListStyles.scroll}>
-					<View style={buyListStyles.content}>
-						{buyList.map((item, i) => (
+					<TouchableOpacity onPress={() => {
+						setShowInput(true);
+						setShowInputContainer(false);
+						setOptionSelected(1);
+					}}>
+						<NewProduct width='50' height='50' fill='#000000' />
+					</TouchableOpacity>
 
-							<Card key={i} style={buyListStyles.card}>
-								<Text>{item.name}</Text>
-							</Card>
+				</View>}
 
-						))}
-					</View>
-				</ScrollView>
-			</View>
+				{showInput && <View style={findProductStyle.container}>
+					{
+						<TouchableOpacity onPress={() => {
+							setShowInputContainer(true);
+							setShowInput(false);
+						}}>
+							{optionSelected === 1 ? <NewProduct width='40' height='40' fill='#000000' /> : <Loupe width='30' height='30' fill='#000000' />}
+						</TouchableOpacity>
+					}
+					<TextInput placeholder='Insira o nome do produto' style={findProductStyle.input} onChangeText={(text) => findProducts(text)} />
+				</View>}
 
-			{productsFound.length > 0 &&
-				<View style={styles.scrollContainer}>
-					<ScrollView style={styles.scroll}>
-						{productsFound.map((product, i) => (
-							<TouchableOpacity key={i} style={styles.productContainer} onPress={() => addItemToList(product)}>
-								<Text key={i}>{product.name}</Text>
-							</TouchableOpacity>
-						))}
+				<View style={buyListStyles.container}>
+					<ScrollView style={buyListStyles.scroll}>
+						<View style={buyListStyles.content}>
+							{buyList.map((item, i) => (
+								<Card key={i} style={buyListStyles.card}>
+									<TouchableOpacity>
+										<AntDesign name="minus" size={24} color="black" />
+									</TouchableOpacity>
+									<View style={buyListStyles.textContainer}>
+										<Text style={buyListStyles.productName}>{item.name}</Text>
+										<Text style={buyListStyles.productAmount}>{item.amount}</Text>
+										<Text style={buyListStyles.productTotal}>Total: </Text>
+									</View>
+									<TouchableOpacity>
+
+										<AntDesign name="plus" size={24} color="black" />
+									</TouchableOpacity>
+								</Card>
+							))}
+						</View>
 					</ScrollView>
 				</View>
-			}
 
+				{productsFound.length > 0 &&
+					<View style={styles.scrollContainer}>
+						<ScrollView style={styles.scroll}>
+							{productsFound.map((product, i) => (
+								<TouchableOpacity key={i} style={styles.productContainer} onPress={() => addItemToList(product)}>
+									<Text key={i}>{product.name}</Text>
+								</TouchableOpacity>
+							))}
+						</ScrollView>
+					</View>
+				}
+			</>}
+			{loading && <ActivityIndicator size='large' color='#000000' style={styles.loading} />
+			}
 		</SafeAreaView>
 	)
 }
@@ -122,14 +142,13 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		backgroundColor: '#fff',
 		padding: 10,
-		position: 'absolute',
 	},
 
 	buttonsContainer: {
 		flexDirection: 'row',
 		width: '100%',
 		alignItems: 'center',
-		justifyContent: 'space-around'
+		justifyContent: 'space-around',
 	},
 
 	scrollContainer: {
@@ -154,10 +173,6 @@ const styles = StyleSheet.create({
 		borderBottomEndRadius: 20,
 		borderBottomWidth: 2,
 		borderBottomColor: '#000',
-
-
-
-
 	},
 
 	productContainer: {
@@ -167,6 +182,9 @@ const styles = StyleSheet.create({
 
 	},
 
+	loading: {
+		flex: 1,
+	}
 
 })
 
@@ -204,7 +222,7 @@ const buyListStyles = StyleSheet.create({
 	container: {
 		marginTop: 40,
 		width: '100%',
-		height: '50%',
+		height: '70%',
 	},
 
 	scroll: {
@@ -220,8 +238,32 @@ const buyListStyles = StyleSheet.create({
 
 	},
 
+
+
 	card: {
 		backgroundColor: '#b9e8b9',
 		margin: 10,
-	}
+		justifyContent: 'space-around',
+		alignItems: 'center',
+		padding: 10,
+		flexDirection: 'row'
+	},
+
+	textContainer: {
+		justifyContent: 'space-around',
+		alignItems: 'center',
+		height: '100%',
+		marginHorizontal: 20
+	},
+
+	productName: {
+		fontSize: 16,
+		fontWeight: 'bold',
+	},
+	productAmount: {
+		fontSize: 20,
+	},
+	productTotal: {
+		fontSize: 17
+	},
 })
