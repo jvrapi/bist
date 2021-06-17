@@ -12,13 +12,13 @@ interface Product {
 }
 
 const NewList: React.FC = () => {
-	const { list, updateList, loading, rawValues, updateRawValues, clearStorage } = useContext(ListContext)
+	const { list, updateList, loading, clearStorage } = useContext(ListContext)
 	const [productsFound, setProductFound] = useState<Product[]>([]);
 	const [showInput, setShowInput] = useState(false);
 	const [optionSelected, setOptionSelected] = useState(0);
 	const [showInputContainer, setShowInputContainer] = useState(true);
 	const [buyList, setBuyList] = useState<Item[]>([]);
-	const [showTotal, setShowTotal] = useState(true);
+	const [editingItem, setEditingItem] = useState(0);
 
 	const findProductStyle = inputStyles(productsFound.length > 0);
 
@@ -43,7 +43,7 @@ const NewList: React.FC = () => {
 			id: buyList.length + 1,
 			name: product.name,
 			amount: 1,
-			price: '',
+			price: '0',
 		}
 		const updatedList = [...buyList];
 		updatedList.push(item);
@@ -72,84 +72,75 @@ const NewList: React.FC = () => {
 
 					item.amount--;
 				}
+
+
 			}
 			return item;
 		}).filter(item => item.amount > 0);
+
 		setBuyList(updatedList);
 		updateList(updatedList);
 		total(id);
-
 	}
 
 	const total = (itemId: number) => {
 		const item = buyList.filter(item => item.id === itemId).shift() as Item;
-		const rawValue = rawValues.filter(item => item.id === itemId).shift() as RawValues;
 
-		if (rawValue) {
-			const total = item.amount * parseFloat(rawValue.value);
-			return "Total: R$" + total;
+		if (item) {
+			const total = item.amount * parseFloat(item.price);
+			return total;
 		}
-		return "Total: R$ "
+		return ''
 	}
 
-	const updatePrice = (itemId: number, maskedValue: string, rawValue: string) => {
+	const updatePrice = (itemId: number, rawValue: string) => {
 		const updatedList = buyList.map(item => {
 			if (item.id === itemId) {
-				item.price = maskedValue;
+				item.price = rawValue;
 
 			}
 			return item;
 		})
-		const updatedRawValue = rawValues.map(item => {
-			if (item.id === itemId) {
-				item.value = rawValue;
-			} else {
-				item.id = itemId;
-				item.value = rawValue;
-			}
-			return item
-		});
-
-		updateRawValues(updatedRawValue);
 		setBuyList(updatedList);
 		updateList(updatedList);
 		total(itemId);
-
 	}
 
 	const finishBuy = async () => {
 		await clearStorage()
 	}
 
-	useEffect(() => {
+	const calculateTotalListValue = () => {
+		let totalList = 0;
+		buyList.forEach(item => {
+			const totalPerItem = total(item.id);
+			if (totalPerItem) {
+				totalList += totalPerItem;
+			}
+		})
+		return totalList
+	}
 
+	useEffect(() => {
 		if (!loading) {
 			setBuyList(list);
-
 		}
+
 	}, [loading]);
 
 	useEffect(() => {
-		const keyboardDidShowListener = Keyboard.addListener(
-			'keyboardDidShow',
-			() => {
-				setShowTotal(false);
-			}
-		);
+
 		const keyboardDidHideListener = Keyboard.addListener(
 			'keyboardDidHide',
 			() => {
-				setShowTotal(true);
+				setEditingItem(0);
 			}
 		);
 
 		return () => {
 			keyboardDidHideListener.remove();
-			keyboardDidShowListener.remove();
 		};
 	}, []);
-
-
 
 	return (
 		<SafeAreaView style={styles.container}>
@@ -174,49 +165,71 @@ const NewList: React.FC = () => {
 
 				</View>}
 
-				{showInput && <View style={findProductStyle.container}>
-					{
-						<TouchableOpacity onPress={() => {
-							setShowInputContainer(true);
-							setShowInput(false);
-						}}>
-							{optionSelected === 1 ? <NewProduct width='40' height='40' fill='#000000' /> : <Loupe width='30' height='30' fill='#000000' />}
-						</TouchableOpacity>
-					}
-					<TextInput placeholder='Insira o nome do produto' style={findProductStyle.input} onChangeText={(text) => findProducts(text)} />
+				{showInput && <View style={{ padding: 10 }}>
+					<View style={findProductStyle.container}>
+						{
+							<TouchableOpacity onPress={() => {
+								setShowInputContainer(true);
+								setShowInput(false);
+							}}>
+								{optionSelected === 1 ? <NewProduct width='40' height='40' fill='#000000' /> : <Loupe width='30' height='30' fill='#000000' />}
+							</TouchableOpacity>
+						}
+						<TextInput placeholder='Insira o nome do produto' style={findProductStyle.input} onChangeText={(text) => findProducts(text)} />
+					</View>
 				</View>}
 
 				<View style={buyListStyles.container}>
 					<ScrollView style={buyListStyles.scroll}>
 						<View style={buyListStyles.content}>
 							{buyList.map((item, i) => (
+
 								<Card key={i} style={buyListStyles.card}>
+
 									<TouchableOpacity onPress={() => decrement(item.id)}>
 										<AntDesign name="minus" size={24} color="black" />
 									</TouchableOpacity>
+
 									<View style={buyListStyles.textContainer}>
+
 										<Text style={buyListStyles.productName}>{item.name}</Text>
 										<Text style={buyListStyles.productAmount}>{item.amount}</Text>
-										{showTotal && <TouchableWithoutFeedback onPress={() => setShowTotal(false)} style={{ backgroundColor: 'red' }}>
-											<Text style={buyListStyles.productTotal}>{total(item.id)} </Text>
-										</TouchableWithoutFeedback>}
-										{!showTotal && <TextInputMask
-											type={'money'}
-											value={item.price}
-											includeRawValueInChangeText
-											onChangeText={(maskedValue, rawValue) => {
-												updatePrice(item.id, maskedValue, rawValue as string)
-											}}
-										/>}
+										{(editingItem < 1 || editingItem !== item.id) && (
+											<TouchableWithoutFeedback onPress={() => setEditingItem(item.id)} style={{ backgroundColor: 'red' }}>
+												<Text style={buyListStyles.productTotal}>Total: R${total(item.id)} </Text>
+											</TouchableWithoutFeedback>
+										)}
+										{editingItem === item.id && (
+											<TextInputMask
+												style={buyListStyles.input}
+												type={'money'}
+												value={item.price}
+												includeRawValueInChangeText
+												onChangeText={(maskedValue, rawValue) => {
+													updatePrice(item.id, rawValue as string)
+												}}
+											/>
+										)}
+
 									</View>
+
 									<TouchableOpacity onPress={() => increment(item.id)}>
 										<AntDesign name="plus" size={24} color="black" />
 									</TouchableOpacity>
+
 								</Card>
+
 							))}
 						</View>
 					</ScrollView>
 				</View>
+
+				<View style={styles.totalListContainer}>
+					<Text style={styles.totalListText}>
+						Total da Lista: <Text style={styles.totalListValueText}>R$ {calculateTotalListValue()}</Text>
+					</Text>
+				</View>
+
 				{productsFound.length > 0 &&
 					<View style={styles.scrollContainer}>
 						<ScrollView style={styles.scroll}>
@@ -243,7 +256,6 @@ const styles = StyleSheet.create({
 		justifyContent: 'flex-start',
 		alignItems: 'center',
 		backgroundColor: '#fff',
-		padding: 10,
 	},
 
 	buttonsContainer: {
@@ -251,6 +263,8 @@ const styles = StyleSheet.create({
 		width: '100%',
 		alignItems: 'center',
 		justifyContent: 'space-around',
+		marginTop: 10,
+		padding: 10
 	},
 
 	scrollContainer: {
@@ -259,6 +273,7 @@ const styles = StyleSheet.create({
 		maxHeight: '40%',
 		position: 'absolute',
 		top: 60,
+		paddingHorizontal: 10,
 	},
 
 	scroll: {
@@ -286,6 +301,22 @@ const styles = StyleSheet.create({
 
 	loading: {
 		flex: 1,
+	},
+
+	totalListContainer: {
+		backgroundColor: '#b9e8b9',
+		width: '100%',
+		height: 50,
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
+
+	totalListText: {
+		fontSize: 18,
+	},
+	totalListValueText: {
+		fontWeight: 'bold',
+		fontSize: 19,
 	}
 
 })
@@ -310,13 +341,12 @@ const inputStyles = (hasData: boolean) => StyleSheet.create({
 		paddingHorizontal: 15,
 		alignItems: 'center',
 
-
+		padding: 10,
 	},
 	input: {
 		flex: 1,
 		fontSize: 15,
 		marginLeft: 10,
-
 	}
 })
 
@@ -339,8 +369,6 @@ const buyListStyles = StyleSheet.create({
 		paddingHorizontal: 20,
 
 	},
-
-
 
 	card: {
 		backgroundColor: '#b9e8b9',
@@ -368,4 +396,8 @@ const buyListStyles = StyleSheet.create({
 	productTotal: {
 		fontSize: 17
 	},
+
+	input: {
+		fontSize: 17,
+	}
 })

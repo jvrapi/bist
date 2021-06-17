@@ -4,8 +4,3 @@ interface Item {
 	amount: number;
 	price: string;
 }
-
-interface RawValues {
-	id: number;
-	value: string
-}
