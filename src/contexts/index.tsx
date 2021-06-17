@@ -33,8 +33,10 @@ export const ListProvider: React.FC = ({ children }) => {
 
 
 	const clearStorage = async () => {
+		setLoading(true)
 		await AsyncStorage.setItem('@Bist:buyList', JSON.stringify([]));
 		await AsyncStorage.setItem('@Bist:rawValues', JSON.stringify([]));
+		setLoading(false)
 
 	}
 

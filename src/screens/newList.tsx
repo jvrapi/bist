@@ -7,6 +7,7 @@ import Loupe from '../assets/icons/loupe.svg';
 import Card from '../components/Card';
 import ListContext from '../contexts';
 import products from '../data/products.json';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 interface Product {
 	name: string
 }
@@ -161,6 +162,10 @@ const NewList: React.FC = () => {
 						setOptionSelected(1);
 					}}>
 						<NewProduct width='50' height='50' fill='#000000' />
+					</TouchableOpacity>
+
+					<TouchableOpacity onPress={() => finishBuy()}>
+						<MaterialCommunityIcons name="playlist-check" size={50} color="black" />
 					</TouchableOpacity>
 
 				</View>}
