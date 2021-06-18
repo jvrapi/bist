@@ -18,8 +18,12 @@ export const ListProvider: React.FC = ({ children }) => {
 	useEffect(() => {
 		const loadList = async () => {
 			const list = await AsyncStorage.getItem('@Bist:buyList');
+			if (!list) {
+				setList([]);
+			} else {
 
-			setList(JSON.parse(list as string));
+				setList(JSON.parse(list as string));
+			}
 			setLoading(false);
 		}
 
