@@ -5,11 +5,16 @@ type ListProduct = {
   productId: string
   listId: string
   amount: number
-  price: string
+  price: number
   product: {
     id: string
     name: string
   }
+}
+
+type AddItem = {
+  productId: string
+  listId: string
 }
 
 const baseURL = '/list-products'
@@ -24,4 +29,9 @@ const updateList = async (listProduct: ListProduct) => {
   return response
 }
 
-export { ListProduct, getDetails, updateList }
+const addItemToList = async (listProduct: AddItem) => {
+  const response = await api.post(`${baseURL}/`, listProduct)
+  return response
+}
+
+export { ListProduct, AddItem, getDetails, updateList, addItemToList }

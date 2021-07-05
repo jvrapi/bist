@@ -3,6 +3,7 @@ import React from 'react'
 import { StatusBar } from 'expo-status-bar'
 import { NavigationContainer } from '@react-navigation/native'
 import { Inter_400Regular, Inter_500Medium } from '@expo-google-fonts/inter'
+import { AppearanceProvider } from 'react-native-appearance'
 import {
   Rajdhani_500Medium,
   Rajdhani_700Bold
@@ -24,9 +25,11 @@ export default function App() {
     return <AppLoading />
   }
   return (
-    <NavigationContainer>
-      <Routes />
-      <StatusBar style='light' />
-    </NavigationContainer>
+    <AppearanceProvider>
+      <NavigationContainer>
+        <Routes />
+        <StatusBar style='light' />
+      </NavigationContainer>
+    </AppearanceProvider>
   )
 }

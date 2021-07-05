@@ -71,6 +71,22 @@ export const styles = StyleSheet.create({
 
   modalContent: {
     paddingHorizontal: 10
+  },
+
+  finishModalButton: {
+    width: '70%',
+    backgroundColor: theme.colors.on,
+    height: 60,
+    marginTop: 50,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center'
+  },
+  finishModalButtonText: {
+    fontSize: 20,
+    color: theme.colors.secondary100,
+    fontFamily: theme.fonts.title700
   }
 })
 
@@ -102,59 +118,3 @@ export const inputStyles = (hasData: boolean) =>
       fontFamily: theme.fonts.title700
     }
   })
-
-export const buyListStyles = StyleSheet.create({
-  container: {
-    marginTop: 40,
-    width: '100%',
-    height: '70%'
-  },
-
-  scroll: {
-    width: '100%'
-  },
-
-  content: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'flex-start',
-    alignSelf: 'center',
-    paddingHorizontal: 20
-  },
-
-  card: {
-    backgroundColor: theme.colors.primary,
-    margin: 10,
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    padding: 10,
-    flexDirection: 'row'
-  },
-
-  textContainer: {
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    height: '100%',
-    marginHorizontal: 20
-  },
-
-  productName: {
-    fontSize: 20,
-    color: theme.colors.heading,
-    fontFamily: theme.fonts.title700
-  },
-  productAmount: {
-    fontSize: 20,
-    color: theme.colors.heading,
-    fontFamily: theme.fonts.text500
-  },
-  productTotal: {
-    fontSize: 17,
-    color: theme.colors.heading,
-    fontFamily: theme.fonts.title500
-  },
-
-  input: {
-    fontSize: 17
-  }
-})

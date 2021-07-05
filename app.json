@@ -44,6 +44,7 @@
         "wasm",
         "svg"
       ]
-    }
+    },
+    "userInterfaceStyle": "automatic"
   }
 }

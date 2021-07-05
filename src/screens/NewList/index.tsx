@@ -1,46 +1,59 @@
-import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
 import React, { useEffect, useState } from 'react'
 import {
   ActivityIndicator,
   Alert,
-  KeyboardAvoidingView,
-  Platform,
   ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   View
 } from 'react-native'
 import NewProduct from '../../assets/icons/add-to-basket.svg'
 import Loupe from '../../assets/icons/loupe.svg'
-import Card from '../../components/Card'
+import { ListProducts } from '../../components/ListProducts'
+import { ModalPrice } from '../../components/ModalPrice'
+import { InputPrice } from '../../components/InputPrice'
+import { InputAmount } from '../../components/InputAmount'
+import { createList } from '../../services/List'
 import {
+  AddItem,
+  addItemToList,
   getDetails,
   ListProduct,
   updateList
 } from '../../services/ListProducts'
 import { getByName, Product } from '../../services/Product'
-import { ModalPrice } from '../../components/ModalPrice'
-import { styles, inputStyles, buyListStyles } from './styles'
-import { InputPrice } from '../../components/PriceInput'
+import { calculateTotalPerItem } from '../../utils/calculateTotalPerItem'
+import { inputStyles, styles } from './styles'
 
 const NewList: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [showInputContainer, setShowInputContainer] = useState(true)
   const [showInput, setShowInput] = useState(false)
+  const [showModalPrice, setShowModalPrice] = useState(false)
   const [optionSelected, setOptionSelected] = useState(0)
+  const [value, setValue] = useState('')
+  const [searchText, setSearchText] = useState('')
+  const [listId, setList] = useState('30afea7e-c4dc-4e9c-b507-be8def596d10')
   const [data, setData] = useState<ListProduct[]>([])
   const [productsFound, setProductFound] = useState<Product[]>([])
-  const [showModalPrice, setShowModalPrice] = useState(false)
-  const [value, setValue] = useState('')
   const [editingItem, setEditingItem] = useState<ListProduct>({} as ListProduct)
 
   const findProductStyle = inputStyles(productsFound.length > 0)
 
+  const getListId = async () => {
+    try {
+      const { data } = await createList()
+      setList(data.id)
+    } catch (error) {
+      Alert.alert('Erro ao criar a lista')
+    }
+  }
+
   const getData = async () => {
     try {
-      const { data } = await getDetails('30afea7e-c4dc-4e9c-b507-be8def596d10')
+      const { data } = await getDetails(listId)
       setData(data)
     } catch (error) {
       Alert.alert('Error')
@@ -50,6 +63,7 @@ const NewList: React.FC = () => {
   }
 
   const findProducts = async (productName: string) => {
+    setSearchText(productName)
     if (productName) {
       try {
         if (optionSelected === 0) {
@@ -67,7 +81,21 @@ const NewList: React.FC = () => {
     }
   }
 
-  const addItemToList = async (product: Product) => { }
+  const addItem = async (product: Product) => {
+    const listProduct: AddItem = {
+      listId,
+      productId: product.id
+    }
+    try {
+      await addItemToList(listProduct)
+      await getData()
+    } catch (error) {
+      Alert.alert('Erro ao adicionar item a lista')
+    } finally {
+      setSearchText('')
+      setProductFound([])
+    }
+  }
 
   const updateListProduct = async (listProduct: ListProduct) => {
     try {
@@ -83,12 +111,6 @@ const NewList: React.FC = () => {
     setEditingItem(editingItem)
     updateListProduct(editingItem)
   }
-
-  const calculateTotalPerItem = (price: number, amount: number) => {
-    const total = parseFloat(price.toString()) * amount
-    return total
-  }
-
   const calculateTotalListValue = () => {
     let totalList = 0
     data.forEach(item => {
@@ -101,20 +123,17 @@ const NewList: React.FC = () => {
   }
 
   const handleModalOpened = (listProduct: ListProduct) => {
-    setShowModalPrice(true)
+    setEditingItem(listProduct)
     if (listProduct.price) {
       setValue(parseFloat(listProduct.price.toString()).toFixed(2))
     }
+    setShowModalPrice(true)
   }
 
   const handleModalClosed = async () => {
     setShowModalPrice(false)
     setValue('')
     await updateListProduct(editingItem)
-  }
-
-  const changeEditingItemState = (listProduct: ListProduct) => {
-    setEditingItem(listProduct)
   }
 
   const finishBuy = async () => { }
@@ -124,10 +143,7 @@ const NewList: React.FC = () => {
   }, [])
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
-    >
+    <View style={styles.container}>
       {!loading && (
         <>
           {showInputContainer && (
@@ -182,63 +198,13 @@ const NewList: React.FC = () => {
                   placeholder='Insira o nome do produto'
                   style={findProductStyle.input}
                   onChangeText={text => findProducts(text)}
+                  value={searchText}
                 />
               </View>
             </View>
           )}
 
-          <View style={buyListStyles.container}>
-            <ScrollView style={buyListStyles.scroll}>
-              <View style={buyListStyles.content}>
-                {data.map((item, i) => (
-                  <Card key={i} style={buyListStyles.card}>
-                    <TouchableOpacity
-                      onPress={() =>
-                        updateListProduct({
-                          ...item,
-                          amount: (item.amount -= 1)
-                        })
-                      }
-                    >
-                      <AntDesign name='minus' size={24} color='black' />
-                    </TouchableOpacity>
-
-                    <View style={buyListStyles.textContainer}>
-                      <Text style={buyListStyles.productName}>
-                        {item.product.name}
-                      </Text>
-                      <Text style={buyListStyles.productAmount}>
-                        {item.amount}
-                      </Text>
-
-                      <TouchableWithoutFeedback
-                        onPress={() => {
-                          changeEditingItemState(item)
-                          handleModalOpened(item)
-                        }}
-                      >
-                        <Text style={buyListStyles.productTotal}>
-                          Total: R$
-                          {calculateTotalPerItem(item.price, item.amount)}
-                        </Text>
-                      </TouchableWithoutFeedback>
-                    </View>
-
-                    <TouchableOpacity
-                      onPress={() =>
-                        updateListProduct({
-                          ...item,
-                          amount: (item.amount += 1)
-                        })
-                      }
-                    >
-                      <AntDesign name='plus' size={24} color='black' />
-                    </TouchableOpacity>
-                  </Card>
-                ))}
-              </View>
-            </ScrollView>
-          </View>
+          <ListProducts data={data} onPress={handleModalOpened} />
 
           <View style={styles.totalListContainer}>
             <Text style={styles.totalListText}>
@@ -256,7 +222,7 @@ const NewList: React.FC = () => {
                   <TouchableOpacity
                     key={i}
                     style={styles.productContainer}
-                    onPress={() => addItemToList(product)}
+                    onPress={() => addItem(product)}
                   >
                     <Text key={i}>{product.name}</Text>
                   </TouchableOpacity>
@@ -275,6 +241,28 @@ const NewList: React.FC = () => {
                   updatePrice(rawValue as string)
                 }}
               />
+              <InputAmount
+                amount={editingItem.amount}
+                decrement={() =>
+                  updateListProduct({
+                    ...editingItem,
+                    amount: (editingItem.amount -= 1)
+                  })
+                }
+                increment={() =>
+                  updateListProduct({
+                    ...editingItem,
+                    amount: (editingItem.amount += 1)
+                  })
+                }
+              />
+              <TouchableOpacity
+                style={styles.finishModalButton}
+                onPress={handleModalClosed}
+                activeOpacity={0.5}
+              >
+                <Text style={styles.finishModalButtonText}>Finalizar</Text>
+              </TouchableOpacity>
             </View>
           </ModalPrice>
         </>
@@ -286,7 +274,7 @@ const NewList: React.FC = () => {
           style={styles.loading}
         />
       )}
-    </KeyboardAvoidingView>
+    </View>
   )
 }
 

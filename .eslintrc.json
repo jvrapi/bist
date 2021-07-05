@@ -26,6 +26,8 @@
     "no-use-before-define": "off",
     "react/prop-types": "off",
     "multiline-ternary": "off",
-    "camelcase": "off"
+    "camelcase": "off",
+    "indent": "off",
+    "no-unused-vars": "warn"
   }
 }

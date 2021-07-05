@@ -1,7 +1,6 @@
 import React, { ReactNode } from 'react'
-import { Modal, ModalProps, TouchableWithoutFeedback, View } from 'react-native'
+import { Modal, ModalProps, View } from 'react-native'
 import { styles } from './styles'
-
 type Props = ModalProps & {
   children: ReactNode
   closeModal(): void
@@ -10,14 +9,12 @@ type Props = ModalProps & {
 const ModalPrice: React.FC<Props> = ({ children, closeModal, ...rest }) => {
   return (
     <Modal transparent animationType='slide' statusBarTranslucent {...rest}>
-      <TouchableWithoutFeedback onPress={closeModal}>
-        <View style={styles.overlay}>
-          <View style={styles.container}>
-            <View style={styles.bar} />
-            {children}
-          </View>
+      <View style={styles.overlay}>
+        <View style={styles.container}>
+          <View style={styles.bar} />
+          {children}
         </View>
-      </TouchableWithoutFeedback>
+      </View>
     </Modal>
   )
 }
