@@ -7,7 +7,6 @@ import {
   View,
   TouchableOpacity
 } from 'react-native'
-import BuyLists from '../data/lists.json'
 import Card from '../components/Card'
 import { numberToReal } from '../assets/functions'
 import AddListIcon from '../assets/icons/add-list.svg'
@@ -34,18 +33,17 @@ const List = () => {
     <SafeAreaView style={styles.container}>
       <View style={styles.scrollContainer}>
         <ScrollView style={styles.scroll}>
-          <View style={styles.scrollContent}>
-            {BuyLists.map((list, i) => (
-              <Card style={styles.card} key={i}>
-                <View style={styles.cardContent}>
-                  <Text style={[styles.text, styles.strong]}>{list.name}</Text>
-                  <Text style={[styles.text, styles.strong]}>
-                    Total: {totalList(list.items)}
-                  </Text>
-                </View>
-              </Card>
-            ))}
-          </View>
+          <View style={styles.scrollContent} />
+          {/* BuyLists.map((list, i) => (
+          <Card style={styles.card} key={i}>
+            <View style={styles.cardContent}>
+              <Text style={[styles.text, styles.strong]}>{list.name}</Text>
+              <Text style={[styles.text, styles.strong]}>
+                Total: {totalList(list.items)}
+              </Text>
+            </View>
+          </Card>
+          )) */}
         </ScrollView>
         <View style={styles.buttonContainer}>
           <TouchableOpacity

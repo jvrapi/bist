@@ -3,21 +3,27 @@ import React, { useEffect, useState } from 'react'
 import {
   ActivityIndicator,
   Alert,
-  Keyboard,
-  SafeAreaView,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
-  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View
 } from 'react-native'
-import NewProduct from '../assets/icons/add-to-basket.svg'
-import Loupe from '../assets/icons/loupe.svg'
-import Card from '../components/Card'
-import { getDetails, ListProduct, updateList } from '../services/ListProducts'
-import { getByName, Product } from '../services/Product'
+import NewProduct from '../../assets/icons/add-to-basket.svg'
+import Loupe from '../../assets/icons/loupe.svg'
+import Card from '../../components/Card'
+import {
+  getDetails,
+  ListProduct,
+  updateList
+} from '../../services/ListProducts'
+import { getByName, Product } from '../../services/Product'
+import { ModalPrice } from '../../components/ModalPrice'
+import { styles, inputStyles, buyListStyles } from './styles'
+import { InputPrice } from '../../components/PriceInput'
 
 const NewList: React.FC = () => {
   const [loading, setLoading] = useState(true)
@@ -26,13 +32,15 @@ const NewList: React.FC = () => {
   const [optionSelected, setOptionSelected] = useState(0)
   const [data, setData] = useState<ListProduct[]>([])
   const [productsFound, setProductFound] = useState<Product[]>([])
-  const [editingItem, setEditingItem] = useState('')
+  const [showModalPrice, setShowModalPrice] = useState(false)
+  const [value, setValue] = useState('')
+  const [editingItem, setEditingItem] = useState<ListProduct>({} as ListProduct)
 
   const findProductStyle = inputStyles(productsFound.length > 0)
 
   const getData = async () => {
     try {
-      const { data } = await getDetails('a65ba9f8-aeca-4d02-9ef0-f690c3898ccc')
+      const { data } = await getDetails('30afea7e-c4dc-4e9c-b507-be8def596d10')
       setData(data)
     } catch (error) {
       Alert.alert('Error')
@@ -70,15 +78,43 @@ const NewList: React.FC = () => {
     }
   }
 
+  const updatePrice = (value: string) => {
+    editingItem.price = parseFloat(value)
+    setEditingItem(editingItem)
+    updateListProduct(editingItem)
+  }
+
+  const calculateTotalPerItem = (price: number, amount: number) => {
+    const total = parseFloat(price.toString()) * amount
+    return total
+  }
+
   const calculateTotalListValue = () => {
     let totalList = 0
     data.forEach(item => {
-      const totalPerItem = item.price * item.amount
+      const totalPerItem = calculateTotalPerItem(item.price, item.amount)
       if (totalPerItem) {
         totalList += totalPerItem
       }
     })
     return totalList
+  }
+
+  const handleModalOpened = (listProduct: ListProduct) => {
+    setShowModalPrice(true)
+    if (listProduct.price) {
+      setValue(parseFloat(listProduct.price.toString()).toFixed(2))
+    }
+  }
+
+  const handleModalClosed = async () => {
+    setShowModalPrice(false)
+    setValue('')
+    await updateListProduct(editingItem)
+  }
+
+  const changeEditingItemState = (listProduct: ListProduct) => {
+    setEditingItem(listProduct)
   }
 
   const finishBuy = async () => { }
@@ -87,21 +123,11 @@ const NewList: React.FC = () => {
     getData()
   }, [])
 
-  useEffect(() => {
-    const keyboardDidHideListener = Keyboard.addListener(
-      'keyboardDidHide',
-      () => {
-        setEditingItem('')
-      }
-    )
-
-    return () => {
-      keyboardDidHideListener.remove()
-    }
-  }, [])
-
   return (
-    <SafeAreaView style={styles.container}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container}
+    >
       {!loading && (
         <>
           {showInputContainer && (
@@ -184,31 +210,18 @@ const NewList: React.FC = () => {
                       <Text style={buyListStyles.productAmount}>
                         {item.amount}
                       </Text>
-                      {editingItem !== item.id && (
-                        <TouchableWithoutFeedback
-                          onPress={() => setEditingItem(item.id)}
-                          style={{ backgroundColor: 'red' }}
-                        >
-                          <Text style={buyListStyles.productTotal}>
-                            Total: R${item.amount * item.price}
-                          </Text>
-                        </TouchableWithoutFeedback>
-                      )}
-                      {editingItem === item.id && (
-                        <>
-                          <TextInput
-                            style={buyListStyles.input}
-                            value={item.price.toString()}
-                            onChangeText={value => {
-                              updateListProduct({
-                                ...item,
-                                price: parseFloat(value)
-                              })
-                            }}
-                            keyboardType='numeric'
-                          />
-                        </>
-                      )}
+
+                      <TouchableWithoutFeedback
+                        onPress={() => {
+                          changeEditingItemState(item)
+                          handleModalOpened(item)
+                        }}
+                      >
+                        <Text style={buyListStyles.productTotal}>
+                          Total: R$
+                          {calculateTotalPerItem(item.price, item.amount)}
+                        </Text>
+                      </TouchableWithoutFeedback>
                     </View>
 
                     <TouchableOpacity
@@ -251,6 +264,19 @@ const NewList: React.FC = () => {
               </ScrollView>
             </View>
           )}
+
+          <ModalPrice visible={showModalPrice} closeModal={handleModalClosed}>
+            <View style={styles.modalContent}>
+              <InputPrice
+                type={'money'}
+                value={value}
+                onChangeText={(value, rawValue) => {
+                  setValue(rawValue as string)
+                  updatePrice(rawValue as string)
+                }}
+              />
+            </View>
+          </ModalPrice>
         </>
       )}
       {loading && (
@@ -260,156 +286,8 @@ const NewList: React.FC = () => {
           style={styles.loading}
         />
       )}
-    </SafeAreaView>
+    </KeyboardAvoidingView>
   )
 }
 
 export default NewList
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    backgroundColor: '#fff'
-  },
-
-  buttonsContainer: {
-    flexDirection: 'row',
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'space-around',
-    marginTop: 10,
-    padding: 10
-  },
-
-  scrollContainer: {
-    width: '100%',
-    minHeight: 30,
-    maxHeight: '40%',
-    position: 'absolute',
-    top: 60,
-    paddingHorizontal: 10
-  },
-
-  scroll: {
-    backgroundColor: '#ffffff',
-    borderColor: '#000',
-
-    borderBottomRightRadius: 20,
-    borderBottomLeftRadius: 20,
-    borderRightWidth: 2,
-
-    borderLeftWidth: 2,
-
-    borderBottomStartRadius: 20,
-    borderBottomEndRadius: 20,
-    borderBottomWidth: 2,
-    borderBottomColor: '#000'
-  },
-
-  productContainer: {
-    padding: 3,
-    marginLeft: 10,
-    marginBottom: 10
-  },
-
-  loading: {
-    flex: 1
-  },
-
-  totalListContainer: {
-    backgroundColor: '#b9e8b9',
-    width: '100%',
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-
-  totalListText: {
-    fontSize: 18
-  },
-  totalListValueText: {
-    fontWeight: 'bold',
-    fontSize: 19
-  }
-})
-
-const inputStyles = (hasData: boolean) =>
-  StyleSheet.create({
-    container: {
-      width: '100%',
-      borderWidth: 2,
-      borderColor: '#000',
-
-      borderBottomStartRadius: hasData ? 0 : 20,
-      borderBottomEndRadius: hasData ? 0 : 20,
-      borderBottomColor: hasData ? '#ccc' : '#000',
-
-      borderTopEndRadius: 20,
-      borderTopStartRadius: 20,
-
-      height: 50,
-      flexDirection: 'row',
-      paddingHorizontal: 15,
-      alignItems: 'center',
-
-      padding: 10
-    },
-    input: {
-      flex: 1,
-      fontSize: 15,
-      marginLeft: 10
-    }
-  })
-
-const buyListStyles = StyleSheet.create({
-  container: {
-    marginTop: 40,
-    width: '100%',
-    height: '70%'
-  },
-
-  scroll: {
-    width: '100%'
-  },
-
-  content: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'flex-start',
-    alignSelf: 'center',
-    paddingHorizontal: 20
-  },
-
-  card: {
-    backgroundColor: '#b9e8b9',
-    margin: 10,
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    padding: 10,
-    flexDirection: 'row'
-  },
-
-  textContainer: {
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    height: '100%',
-    marginHorizontal: 20
-  },
-
-  productName: {
-    fontSize: 16,
-    fontWeight: 'bold'
-  },
-  productAmount: {
-    fontSize: 20
-  },
-  productTotal: {
-    fontSize: 17
-  },
-
-  input: {
-    fontSize: 17
-  }
-})

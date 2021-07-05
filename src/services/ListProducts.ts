@@ -5,7 +5,7 @@ type ListProduct = {
   productId: string
   listId: string
   amount: number
-  price: number
+  price: string
   product: {
     id: string
     name: string
