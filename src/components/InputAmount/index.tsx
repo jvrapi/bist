@@ -1,6 +1,5 @@
 import React from 'react'
 import { View, Text, TouchableOpacity } from 'react-native'
-import { RectButton } from 'react-native-gesture-handler'
 import { styles } from './styles'
 import { AntDesign } from '@expo/vector-icons'
 

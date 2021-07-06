@@ -26,8 +26,11 @@ import {
 import { getByName, Product } from '../../services/Product'
 import { calculateTotalPerItem } from '../../utils/calculateTotalPerItem'
 import { inputStyles, styles } from './styles'
+import { useNavigation } from '@react-navigation/native'
+import { Load } from '../../components/Load'
 
 const NewList: React.FC = () => {
+  const navigation = useNavigation()
   const [loading, setLoading] = useState(true)
   const [showInputContainer, setShowInputContainer] = useState(true)
   const [showInput, setShowInput] = useState(false)
@@ -48,6 +51,8 @@ const NewList: React.FC = () => {
       setList(data.id)
     } catch (error) {
       Alert.alert('Erro ao criar a lista')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -57,8 +62,6 @@ const NewList: React.FC = () => {
       setData(data)
     } catch (error) {
       Alert.alert('Error')
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -67,7 +70,10 @@ const NewList: React.FC = () => {
     if (productName) {
       try {
         if (optionSelected === 0) {
-          return null
+          const filteredData = data.filter(item =>
+            item.product.name.toLowerCase().includes(productName.toLowerCase())
+          )
+          setData(filteredData)
         } else {
           const { data } = await getByName(productName)
           setProductFound(data)
@@ -98,6 +104,7 @@ const NewList: React.FC = () => {
   }
 
   const updateListProduct = async (listProduct: ListProduct) => {
+    setSearchText('')
     try {
       await updateList(listProduct)
       await getData()
@@ -136,10 +143,12 @@ const NewList: React.FC = () => {
     await updateListProduct(editingItem)
   }
 
-  const finishBuy = async () => { }
+  const finishBuy = async () => {
+    navigation.navigate('List')
+  }
 
   useEffect(() => {
-    getData()
+    getListId()
   }, [])
 
   return (
@@ -267,15 +276,9 @@ const NewList: React.FC = () => {
           </ModalPrice>
         </>
       )}
-      {loading && (
-        <ActivityIndicator
-          size='large'
-          color='#000000'
-          style={styles.loading}
-        />
-      )}
+      {loading && <Load />}
     </View>
   )
 }
 
-export default NewList
+export { NewList }

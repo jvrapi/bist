@@ -6,7 +6,6 @@ import {
   View,
   ViewStyle
 } from 'react-native'
-import globalStyles from '../../assets/globalStyles'
 
 interface Props extends TouchableOpacityProps {
   style?: StyleProp<ViewStyle>
@@ -14,10 +13,7 @@ interface Props extends TouchableOpacityProps {
 
 const Card: React.FC<Props> = ({ children, ...props }) => {
   return (
-    <View
-      {...props}
-      style={[styles.container, props.style, globalStyles.shadow]}
-    >
+    <View {...props} style={[styles.container, props.style]}>
       {children}
     </View>
   )
