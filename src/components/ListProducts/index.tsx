@@ -11,6 +11,13 @@ type Props = {
 }
 
 const ListProducts: React.FC<Props> = ({ data, onPress }) => {
+  const hasData = () => {
+    if (data.length > 0) {
+      return <ListDivider isCentered />
+    } else {
+      return null
+    }
+  }
   return (
     <View style={styles.container}>
       <FlatList
@@ -21,7 +28,7 @@ const ListProducts: React.FC<Props> = ({ data, onPress }) => {
         )}
         showsVerticalScrollIndicator={false}
         ItemSeparatorComponent={() => <ListDivider isCentered />}
-        ListHeaderComponent={() => <ListDivider isCentered />}
+        ListHeaderComponent={hasData}
         style={styles.products}
         contentContainerStyle={{ paddingBottom: 68, paddingTop: 50 }}
       />

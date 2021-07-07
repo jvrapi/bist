@@ -1,30 +1,28 @@
 import React from 'react'
-import { View, Text } from 'react-native'
-import { RectButton, RectButtonProps } from 'react-native-gesture-handler'
+import { FlatList, View } from 'react-native'
+import { RectButtonProps } from 'react-native-gesture-handler'
 import { ListsProps } from '../../services/List'
-import Card from '../Card'
+import { ListDivider } from '../ListDivider'
+import { ListItem } from '../ListItem'
 import { styles } from './styles'
 
 type Props = RectButtonProps & {
-  data: ListsProps
+  data: ListsProps[]
 }
 
 const Lists: React.FC<Props> = ({ data, ...rest }) => {
-  const parseDate = (date: string) => {
-    const dateArray = date.split('T')[0].split('-')
-    return `${dateArray[2]}/${dateArray[1]}/${dateArray[0]}`
-  }
   return (
-    <RectButton {...rest}>
-      <Card style={styles.container}>
-        <View>
-          <Text style={styles.dateText}>{parseDate(data.createdAt)}</Text>
-        </View>
-        <View>
-          <Text style={styles.totalText}>Total R$ {data.total}</Text>
-        </View>
-      </Card>
-    </RectButton>
+    <View style={styles.container}>
+      <FlatList
+        data={data}
+        keyExtractor={item => item.id}
+        renderItem={({ item }) => <ListItem data={item} />}
+        showsVerticalScrollIndicator={false}
+        ItemSeparatorComponent={() => <ListDivider isCentered />}
+        style={styles.lists}
+        contentContainerStyle={{ paddingBottom: 68, paddingTop: 50 }}
+      />
+    </View>
   )
 }
 

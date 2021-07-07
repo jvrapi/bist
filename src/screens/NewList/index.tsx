@@ -1,7 +1,6 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import React, { useEffect, useState } from 'react'
 import {
-  ActivityIndicator,
   Alert,
   ScrollView,
   Text,

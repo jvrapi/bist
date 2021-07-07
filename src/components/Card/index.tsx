@@ -19,7 +19,7 @@ const Card: React.FC<Props> = ({ children, ...props }) => {
   )
 }
 
-export default Card
+export { Card }
 
 const styles = StyleSheet.create({
   container: {
