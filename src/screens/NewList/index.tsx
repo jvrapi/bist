@@ -37,7 +37,7 @@ const NewList: React.FC = () => {
   const [optionSelected, setOptionSelected] = useState(0)
   const [value, setValue] = useState('')
   const [searchText, setSearchText] = useState('')
-  const [listId, setList] = useState('30afea7e-c4dc-4e9c-b507-be8def596d10')
+  const [listId, setList] = useState('')
   const [data, setData] = useState<ListProduct[]>([])
   const [productsFound, setProductFound] = useState<Product[]>([])
   const [editingItem, setEditingItem] = useState<ListProduct>({} as ListProduct)
@@ -66,7 +66,7 @@ const NewList: React.FC = () => {
 
   const findProducts = async (productName: string) => {
     setSearchText(productName)
-    if (productName) {
+    if (productName.length > 1) {
       try {
         if (optionSelected === 0) {
           const filteredData = data.filter(item =>
@@ -112,11 +112,6 @@ const NewList: React.FC = () => {
     }
   }
 
-  const updatePrice = (value: string) => {
-    editingItem.price = parseFloat(value)
-    setEditingItem(editingItem)
-    updateListProduct(editingItem)
-  }
   const calculateTotalListValue = () => {
     let totalList = 0
     data.forEach(item => {
@@ -246,19 +241,22 @@ const NewList: React.FC = () => {
                 value={value}
                 onChangeText={(value, rawValue) => {
                   setValue(rawValue as string)
-                  updatePrice(rawValue as string)
+                  setEditingItem({
+                    ...editingItem,
+                    price: parseFloat(rawValue as string)
+                  })
                 }}
               />
               <InputAmount
                 amount={editingItem.amount}
                 decrement={() =>
-                  updateListProduct({
+                  setEditingItem({
                     ...editingItem,
                     amount: (editingItem.amount -= 1)
                   })
                 }
                 increment={() =>
-                  updateListProduct({
+                  setEditingItem({
                     ...editingItem,
                     amount: (editingItem.amount += 1)
                   })

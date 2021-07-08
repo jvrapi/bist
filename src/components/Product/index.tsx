@@ -2,7 +2,7 @@ import React from 'react'
 import { View, Text, TouchableWithoutFeedback } from 'react-native'
 import { ListProduct } from '../../services/ListProducts'
 import { styles } from './styles'
-import Card from '../Card'
+import { Card } from '../Card'
 import { calculateTotalPerItem } from '../../utils/calculateTotalPerItem'
 import { RectButton, RectButtonProps } from 'react-native-gesture-handler'
 

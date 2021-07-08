@@ -21,7 +21,7 @@ export const styles = StyleSheet.create({
   scrollContainer: {
     width: '100%',
     minHeight: 30,
-    maxHeight: '40%',
+    maxHeight: '70%',
     position: 'absolute',
     top: 60,
     paddingHorizontal: 10
@@ -40,13 +40,15 @@ export const styles = StyleSheet.create({
     borderBottomStartRadius: 20,
     borderBottomEndRadius: 20,
     borderBottomWidth: 2,
-    borderBottomColor: '#000'
+    borderBottomColor: '#000',
+    paddingBottom: 50
   },
 
   productContainer: {
     padding: 3,
     marginLeft: 10,
-    marginBottom: 10
+    marginBottom: 10,
+    marginTop: 10
   },
 
   loading: {

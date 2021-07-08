@@ -20,5 +20,13 @@ export const styles = StyleSheet.create({
     fontSize: 18,
     fontFamily: theme.fonts.text500,
     color: theme.colors.heading
+  },
+
+  deleteButton: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    margin: 5,
+    zIndex: 5
   }
 })

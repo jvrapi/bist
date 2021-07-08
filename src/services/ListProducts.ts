@@ -1,3 +1,4 @@
+import { AxiosResponse } from 'axios'
 import { api } from './Api'
 
 type ListProduct = {
@@ -19,7 +20,9 @@ type AddItem = {
 
 const baseURL = '/list-products'
 
-const getDetails = async (listId: string) => {
+const getDetails = async (
+  listId: string
+): Promise<AxiosResponse<ListProduct[]>> => {
   const response = await api.get(`${baseURL}/${listId}`)
   return response
 }

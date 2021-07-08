@@ -24,4 +24,11 @@ const getLists = async () => {
   const response = await api.get(`${baseURL}`)
   return response
 }
-export { createList, ListsProps, getLists }
+
+const deleteLists = async (listIds: string[]) => {
+  const response = await api.delete(`${baseURL}`, {
+    data: listIds
+  })
+  return response
+}
+export { createList, ListsProps, getLists, deleteLists }

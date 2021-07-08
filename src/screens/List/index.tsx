@@ -1,14 +1,13 @@
-import { useFocusEffect } from '@react-navigation/native'
-import React, { useCallback, useEffect, useState } from 'react'
-import { Alert, SafeAreaView, View } from 'react-native'
-
+import { useNavigation } from '@react-navigation/native'
+import React, { useEffect, useState } from 'react'
+import { Alert, SafeAreaView } from 'react-native'
 import { FloatButton } from '../../components/FloatButton'
 import { Lists } from '../../components/Lists'
 import { Load } from '../../components/Load'
 import { getLists, ListsProps } from '../../services/List'
 import { styles } from './styles'
-
 const List = () => {
+  const navigation = useNavigation()
   const [data, setData] = useState<ListsProps[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -22,14 +21,12 @@ const List = () => {
       setLoading(false)
     }
   }
-  useFocusEffect(
-    useCallback(() => {
-      getData()
-    }, [data])
-  )
-
   useEffect(() => {
     getData()
+    navigation.addListener('focus', () => {
+      setLoading(true)
+      getData()
+    })
   }, [])
 
   return (
