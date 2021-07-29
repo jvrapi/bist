@@ -87,6 +87,8 @@ const NewList: React.FC = () => {
   }
 
   const addItem = async (product: Product) => {
+    setSearchText('')
+    setProductFound([])
     const listProduct: AddItem = {
       listId,
       productId: product.id
@@ -96,9 +98,6 @@ const NewList: React.FC = () => {
       await getData()
     } catch (error) {
       Alert.alert('Erro ao adicionar item a lista')
-    } finally {
-      setSearchText('')
-      setProductFound([])
     }
   }
 
