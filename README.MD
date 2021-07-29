@@ -10,7 +10,7 @@
 </p>
 
 <div align="center">
-	<img src=".github/demonstration.gif" alt="Bist" height="580" />
+	<img src=".github/demonstration.gif" alt="Bist" height="650" width="300" />
 	
 </div>
 
