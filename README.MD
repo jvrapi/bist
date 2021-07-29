@@ -1,5 +1,5 @@
 <h1 align="center">
-	<img src="https://user-images.githubusercontent.com/55202424/123529711-6834e680-d6c9-11eb-8fcf-511fec6854fb.png" alt="GamePlay" width="200"/>
+	Bist
 </h1>
 <p align="center">
   <a href="#open_book-about">About</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
