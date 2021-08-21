@@ -1,19 +1,12 @@
-import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { useNavigation } from '@react-navigation/native'
 import React, { useEffect, useState } from 'react'
-import {
-  Alert,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
-} from 'react-native'
-import NewProduct from '../../assets/icons/add-to-basket.svg'
-import Loupe from '../../assets/icons/loupe.svg'
-import { ListProducts } from '../../components/ListProducts'
-import { ModalPrice } from '../../components/ModalPrice'
-import { InputPrice } from '../../components/InputPrice'
+import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native'
 import { InputAmount } from '../../components/InputAmount'
+import { InputPrice } from '../../components/InputPrice'
+import { ListProducts } from '../../components/ListProducts'
+import { Load } from '../../components/Load'
+import { ModalPrice } from '../../components/ModalPrice'
+import NewListHeader from '../../components/NewListHeader'
 import { createList } from '../../services/List'
 import {
   AddItem,
@@ -24,26 +17,20 @@ import {
 } from '../../services/ListProducts'
 import { getByName, Product } from '../../services/Product'
 import { calculateTotalPerItem } from '../../utils/calculateTotalPerItem'
-import { inputStyles, styles } from './styles'
-import { useNavigation } from '@react-navigation/native'
-import { Load } from '../../components/Load'
+import { styles } from './styles'
 
 const NewList: React.FC = () => {
   const navigation = useNavigation()
   const [loading, setLoading] = useState(true)
-  const [showInputContainer, setShowInputContainer] = useState(true)
-  const [showInput, setShowInput] = useState(false)
-  const [showModalPrice, setShowModalPrice] = useState(false)
   const [optionSelected, setOptionSelected] = useState(0)
+
+  const [showModalPrice, setShowModalPrice] = useState(false)
   const [value, setValue] = useState('')
   const [searchText, setSearchText] = useState('')
   const [listId, setList] = useState('')
   const [data, setData] = useState<ListProduct[]>([])
   const [productsFound, setProductFound] = useState<Product[]>([])
   const [editingItem, setEditingItem] = useState<ListProduct>({} as ListProduct)
-
-  const findProductStyle = inputStyles(productsFound.length > 0)
-
   const getListId = async () => {
     try {
       const { data } = await createList()
@@ -148,64 +135,14 @@ const NewList: React.FC = () => {
     <View style={styles.container}>
       {!loading && (
         <>
-          {showInputContainer && (
-            <View style={styles.buttonsContainer}>
-              <TouchableOpacity
-                onPress={() => {
-                  setShowInput(true)
-                  setShowInputContainer(false)
-                  setOptionSelected(0)
-                }}
-              >
-                <Loupe width='30' height='30' fill='#000000' />
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={() => {
-                  setShowInput(true)
-                  setShowInputContainer(false)
-                  setOptionSelected(1)
-                }}
-              >
-                <NewProduct width='50' height='50' fill='#000000' />
-              </TouchableOpacity>
-
-              <TouchableOpacity onPress={() => finishBuy()}>
-                <MaterialCommunityIcons
-                  name='playlist-check'
-                  size={50}
-                  color='black'
-                />
-              </TouchableOpacity>
-            </View>
-          )}
-          {showInput && (
-            <View style={{ padding: 10 }}>
-              <View style={findProductStyle.container}>
-                {
-                  <TouchableOpacity
-                    onPress={() => {
-                      setShowInputContainer(true)
-                      setShowInput(false)
-                    }}
-                  >
-                    {optionSelected === 1 ? (
-                      <NewProduct width='40' height='40' fill='#000000' />
-                    ) : (
-                      <Loupe width='30' height='30' fill='#000000' />
-                    )}
-                  </TouchableOpacity>
-                }
-                <TextInput
-                  placeholder='Insira o nome do produto'
-                  style={findProductStyle.input}
-                  onChangeText={text => findProducts(text)}
-                  value={searchText}
-                />
-              </View>
-            </View>
-          )}
-
+          <NewListHeader
+            optionSelected={optionSelected}
+            setOptionSelected={option => setOptionSelected(option)}
+            finishBuy={finishBuy}
+            productsFoundLength={productsFound.length}
+            searchText={searchText}
+            findProducts={findProducts}
+          />
           <ListProducts data={data} onPress={handleModalOpened} />
 
           <View style={styles.totalListContainer}>

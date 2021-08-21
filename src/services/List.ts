@@ -25,10 +25,8 @@ const getLists = async () => {
   return response
 }
 
-const deleteLists = async (listIds: string[]) => {
-  const response = await api.delete(`${baseURL}`, {
-    data: listIds
-  })
+const deleteList = async (listId: string) => {
+  const response = await api.delete(`${baseURL}/${listId}`)
   return response
 }
-export { createList, ListsProps, getLists, deleteLists }
+export { createList, ListsProps, getLists, deleteList }

@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 
 import { Alert, FlatList, View } from 'react-native'
 import { RectButtonProps } from 'react-native-gesture-handler'
-import { deleteLists, ListsProps } from '../../services/List'
+import { deleteList, ListsProps } from '../../services/List'
 import { ListDivider } from '../ListDivider'
 import { ListItem } from '../ListItem'
 import { styles } from './styles'
@@ -18,7 +18,7 @@ const Lists: React.FC<Props> = ({ data, ...rest }) => {
     const dataUpdated = lists.filter(list => list.id !== listId)
     setLists(dataUpdated)
     try {
-      await deleteLists([listId])
+      await deleteList(listId)
     } catch {
       Alert.alert('Erro ao tentar excluir a lista')
     }
